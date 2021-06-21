@@ -13,10 +13,12 @@ import {
 
 import { PostsService } from '../services/posts.service';
 import { CreatePostDto, UpdatePostDto } from '../dto/post.dto';
+import { LikesService } from '../services/likes.service';
+import { CreateLikeDto } from '../dto/like.dto';
 
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(private readonly postsService: PostsService , private readonly likeService: LikesService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -27,6 +29,17 @@ export class PostsController {
       message: 'Post created successfully',
     };
   }
+
+  @Post('/like')
+  @HttpCode(HttpStatus.CREATED)
+  async createLike(@Body() createLikeDto: CreateLikeDto) {
+    await this.likeService.createLike(createLikeDto)
+    return {
+      success: true,
+      message: 'Liked successfully',
+    };
+  }
+
 
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -68,6 +81,17 @@ export class PostsController {
     return {
       success: true,
       message: 'Post removed successfully',
+    };
+  }
+
+  
+  @Delete('/unlike/:id')
+  @HttpCode(HttpStatus.CREATED)
+  async removeLike(@Param('id', ParseIntPipe) id: number) {
+    await this.likeService.removeLike(id)
+    return {
+      success: true,
+      message: 'Like removed successfully',
     };
   }
 }

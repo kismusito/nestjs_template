@@ -23,14 +23,12 @@ export class PostsService {
   }
 
   findAll() {
-    return this.postRepository.find({
-      relations: ['user'],
-    });
+    return this.postRepository.find();
   }
 
   async findOne(id: number) {
     const getPost = await this.postRepository.findOne(id, {
-      relations: ['user'],
+      relations: ['user' , 'likes' , 'likes.user' , 'comments' , 'comments.user'],
     });
     if (!getPost) {
       throw new NotFoundException('Post not found');
