@@ -3,9 +3,12 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
+  ParseIntPipe,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 
 import { PostsService } from '../services/posts.service';
@@ -16,27 +19,55 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
-  create(@Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(createPostDto);
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() createPostDto: CreatePostDto) {
+    return {
+      success: true,
+      post: await this.postsService.create(createPostDto),
+      message: 'Post created successfully',
+    };
   }
 
   @Get()
-  findAll() {
-    return this.postsService.findAll();
+  @HttpCode(HttpStatus.OK)
+  async findAll() {
+    return {
+      success: true,
+      posts: await this.postsService.findAll(),
+      message: 'Post found successfully',
+    };
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postsService.findOne(+id);
+  @HttpCode(HttpStatus.OK)
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return {
+      success: true,
+      post: await this.postsService.findOne(id),
+      message: 'Post found successfully',
+    };
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(+id, updatePostDto);
+  @Put(':id')
+  @HttpCode(HttpStatus.OK)
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updatePostDto: UpdatePostDto,
+  ) {
+    await this.postsService.update(id, updatePostDto);
+    return {
+      success: true,
+      message: 'Post updated successfully',
+    };
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postsService.remove(+id);
+  @HttpCode(HttpStatus.OK)
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    await this.postsService.remove(id);
+    return {
+      success: true,
+      message: 'Post removed successfully',
+    };
   }
 }
